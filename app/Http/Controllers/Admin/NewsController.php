@@ -5,6 +5,8 @@ use App\Http\Controllers\Controller;
 
 // 以下を追記することでNews Modelが扱えるようになる
 use App\News;
+use App\History;
+use Carbon\Carbon;
 
 class NewsController extends Controller
 {
@@ -53,20 +55,30 @@ class NewsController extends Controller
 
     public function update(Request $request)
     {
-        // Validationをかける
         $this->validate($request, News::$rules);
-        // News Modelからデータを取得する
         $news = News::find($request->id);
-        // 送信されてきたフォームデータを格納する
         $news_form = $request->all();
-        unset($news_form['_token']);
+        if ($request->remove == 'true') {
+            $news_form['image_path'] = null;
+        } elseif ($request->file('image')) {
+            $path = $request->file('image')->store('public/image');
+            $news_form['image_path'] = basename($path);
+        } else {
+            $news_form['image_path'] = $news->image_path;
+        }
 
-        // 該当するデータを上書きして保存する
+        unset($news_form['_token']);
+        unset($news_form['image']);
+        unset($news_form['remove']);
         $news->fill($news_form)->save();
 
-        return redirect('admin/news');
-    }
+        $history = new History;
+        $history->news_id = $news->id;
+        $history->edited_at = Carbon::now();
+        $history->save();
 
+        return redirect('admin/news/');
+    }
     // 以下を追記　　
     public function delete(Request $request)
     {
