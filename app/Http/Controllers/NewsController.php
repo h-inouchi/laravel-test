@@ -20,6 +20,8 @@ class NewsController extends Controller
             $posts = News::all()->sortByDesc('updated_at');
         }
 
+        logger($posts);
+
         if (count($posts) > 0) {
             $headline = $posts->shift();
         } else {

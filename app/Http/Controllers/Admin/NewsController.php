@@ -8,6 +8,10 @@ use App\News;
 use App\History;
 use Carbon\Carbon;
 
+use Aws\S3\S3Client;
+use Aws\S3\Exception\S3Exception;
+use Illuminate\Support\Facades\Storage;
+
 class NewsController extends Controller
 {
     public function add()
@@ -27,8 +31,9 @@ class NewsController extends Controller
 
         // フォームから画像が送信されてきたら、保存して、$news->image_path に画像のパスを保存する
         if (isset($form['image'])) {
-            $path = $request->file('image')->store('public/image');
-            $news->image_path = basename($path);
+            //$path = $request->file('image')->store('public/image');
+            //$news->image_path = basename($path);
+            $news->image_path = $this->upload($request);
         } else {
             $news->image_path = null;
         }
@@ -43,6 +48,18 @@ class NewsController extends Controller
         $news->save();
 
         return redirect('admin/news/create');
+    }
+
+    public function upload(Request $request)
+    {
+        $filename = $request->file('image')->getClientOriginalName();
+
+        $path = $request->file('image')->storeAs('public', $filename);
+
+        $contents = Storage::get('public/'.$filename); //ファイルを読み取る
+        Storage::disk('s3')->put($filename, $contents, 'public'); // Ｓ３にアップ
+
+        return $filename;
     }
 
     public function edit(Request $request)
@@ -61,8 +78,9 @@ class NewsController extends Controller
         if ($request->remove == 'true') {
             $news_form['image_path'] = null;
         } elseif ($request->file('image')) {
-            $path = $request->file('image')->store('public/image');
-            $news_form['image_path'] = basename($path);
+            //$path = $request->file('image')->store('public/image');
+            //$news_form['image_path'] = basename($path);
+            $news_form['image_path'] = $this->upload($request);
         } else {
             $news_form['image_path'] = $news->image_path;
         }
