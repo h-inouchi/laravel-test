@@ -1,6 +1,7 @@
 @extends('layouts.front')
 
 @section('content')
+    <img src="{{ asset('img/publicimg.PNG') }}">
     <div class="container">
         <hr color="#c0c0c0">
         @if (!is_null($headline))
@@ -61,8 +62,15 @@
                     </div>
                     <hr color="#c0c0c0">
                 @endforeach
+                @foreach($users as $user)
+                  <p>{{ $user->id }}</p>
+                  <p>{{ $user->name }}</p>
+                  <p>{{ $user->jointest->introduction }}</p>
+                  @if ($user->profile != null)
+                    <p>{{ $user->profile->introduction }}</p>
+                  @endif
+                @endforeach
             </div>
         </div>
-    </div>
     </div>
 @endsection

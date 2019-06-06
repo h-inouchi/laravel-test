@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\HTML;
 
-// 追記
 use App\News;
+use App\User;
 
 class NewsController extends Controller
 {
@@ -22,11 +22,17 @@ class NewsController extends Controller
 
         logger($posts);
 
+        $users = User::all();
+        logger($users);
+        foreach ($users as $key => $user) {
+          // logger($user->profile);
+        }
+
         if (count($posts) > 0) {
             $headline = $posts->shift();
         } else {
             $headline = null;
         }
-        return view('news.index', ['headline' => $headline, 'posts' => $posts, 'cond_title' => $cond_title]);
+        return view('news.index', ['headline' => $headline, 'posts' => $posts, 'cond_title' => $cond_title, 'users' => $users]);
     }
 }
