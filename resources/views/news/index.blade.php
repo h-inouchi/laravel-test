@@ -65,7 +65,9 @@
                 @foreach($users as $user)
                   <p>{{ $user->id }}</p>
                   <p>{{ $user->name }}</p>
-                  <p>{{ $user->jointest->introduction }}</p>
+                  @if ($user->jointest != null)
+                    <p>{{ $user->jointest->introduction }}</p>
+                  @endif
                   @if ($user->profile != null)
                     <p>{{ $user->profile->introduction }}</p>
                   @endif
